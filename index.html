@@ -13,6 +13,26 @@
             <p class="subtitle">Leave a message for the world to see</p>
         </header>
 
+        <!-- ADMIN PANEL (Hidden by default) -->
+        <div id="adminPanel" class="glass-card admin-panel" style="display: none;">
+            <h2>🔐 Admin Controls</h2>
+            <div class="admin-grid">
+                <div class="admin-stat">
+                    <span class="stat-number" id="todayMessages">0</span>
+                    <span class="stat-label">Today</span>
+                </div>
+                <div class="admin-actions">
+                    <button onclick="exportData()" class="admin-action-btn">📥 Export JSON</button>
+                    <button onclick="importData()" class="admin-action-btn">📤 Import JSON</button>
+                    <button onclick="viewRawData()" class="admin-action-btn">👁️ View Raw</button>
+                    <button onclick="deleteAllMessages()" class="admin-action-btn danger">💣 Delete All</button>
+                </div>
+            </div>
+            <div class="admin-search-box">
+                <input type="text" id="adminSearch" placeholder="Admin search (ID, author, content)...">
+            </div>
+        </div>
+
         <div class="api-status" id="apiStatus">Checking connection...</div>
 
         <div class="glass-card">
