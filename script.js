@@ -8,7 +8,7 @@ const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 let allMessages = []; // Cache for search functionality
 
 // Check if config is set
-if (BIN_ID === 'YOUR_BIN_ID_HERE' || API_KEY === 'YOUR_API_KEY_HERE') {
+if (BIN_ID === '69ba72c0aa77b81da9f5db56' || API_KEY === '$2a$10$9gcluRXq7ptKphUwkCWt3OeSimaobRBfKDwWr8w7qA.5Yhb.kprnS') {
     document.getElementById('messagesContainer').innerHTML = `
         <div class="empty-state" style="color: var(--error);">
             <p>⚠️ Configuration needed!</p>
