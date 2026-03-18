@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Monitor | Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: monospace;
+            background: #0f172a;
+            color: #10b981;
+            padding: 2rem;
+        }
+        h1 { color: #6366f1; margin-bottom: 1rem; }
+        .status {
+            background: #1e293b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #10b981;
+        }
+        .log {
+            background: #1e293b;
+            padding: 1rem;
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .entry {
+            padding: 0.5rem;
+            border-bottom: 1px solid #334155;
+        }
+        .time { color: #94a3b8; }
+        .author { color: #ec4899; font-weight: bold; }
+        .refreshing { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <h1>📡 Message Monitor</h1>
+    <div class="status" id="status">
+        Last check: <span id="lastCheck">Never</span> | 
+        Messages: <span id="msgCount">0</span> |
+        <span id="state">Waiting...</span>
+    </div>
+    <div class="log" id="log"></div>
+
+    <script>
+        // Same config as your main site
+        const BIN_ID = '69ba72c0aa77b81da9f5db56';
+        const API_KEY = '$2a$10$eUjkpme5hJVtQPcOpITtpu2zZ4OmB2b9LuUFG.wLLqF47ARtMY66u';
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        
+        let lastMessageCount = 0;
+        let previousMessages = [];
+
+        async function checkMessages() {
+            const stateEl = document.getElementById('state');
+            stateEl.textContent = 'Checking...';
+            stateEl.className = 'refreshing';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                
+                const data = await response.json();
+                const messages = data.record.messages || [];
+                
+                // Check for new messages
+                const newMessages = messages.filter(m => 
+                    !previousMessages.find(pm => pm.id === m.id)
+                );
+                
+                if (newMessages.length > 0) {
+                    newMessages.forEach(msg => {
+                        addLogEntry(msg, 'NEW');
+                    });
+                }
+                
+                previousMessages = messages;
+                lastMessageCount = messages.length;
+                
+                document.getElementById('msgCount').textContent = messages.length;
+                document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString();
+                stateEl.textContent = 'Idle';
+                stateEl.className = '';
+                
+            } catch (err) {
+                stateEl.textContent = 'Error: ' + err.message;
+                stateEl.style.color = '#ef4444';
+            }
+        }
+
+        function addLogEntry(msg, type) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'entry';
+            entry.innerHTML = `
+                <span class="time">[${new Date(msg.timestamp).toLocaleTimeString()}]</span>
+                <span class="author">${msg.author}</span>: 
+                ${msg.content.substring(0, 50)}${msg.content.length > 50 ? '...' : ''}
+                ${type === 'NEW' ? ' <span style="color:#10b981">[NEW]</span>' : ''}
+            `;
+            log.insertBefore(entry, log.firstChild);
+        }
+
+        // Check every 5 seconds
+        setInterval(checkMessages, 5000);
+        checkMessages(); // First check immediately
+    </script>
+</body>
+</html>
